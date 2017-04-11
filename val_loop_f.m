@@ -25,7 +25,7 @@ function [V,l_opt,my_flag] = val_loop_f(Q0,Q0_d,a,pi,mm)
     scl = max(pi_orig);
     
     %scaled cost function
-    c = @(x,n) ((1+x).^(1+1/bet)-1)/((1+1/bet)*(1 + log(n))^gam*scl/cscale);
+    c = @(x,n) ((1+x).^(1+1/bet)-1)/((1+1/bet)*n^gam*scl/cscale);
     
     %scaled expectation of profit from a relationship
     pi = pi_orig/scl;
@@ -47,7 +47,7 @@ function [V,l_opt,my_flag] = val_loop_f(Q0,Q0_d,a,pi,mm)
             %Solve for value function, last learning step.  j-1 is successes, k is
             for j = 1:N+1
                 % solve for value when network effect maxed out
-                l_opt(:,N+1,j,k,net+1) = max(((1 + log(net+1))^gam*a(N+1,j,k)*pi*scl/cscale).^bet-1,0);
+                l_opt(:,N+1,j,k,net+1) = max(((net+1)^gam*a(N+1,j,k)*pi*scl/cscale).^bet-1,0);
                 Q0_diag = -Q0_d;
                 den = rh+l_opt(:,N+1,j,k,net+1)+diag_Q;
                 last = a(N+1,j,k)*l_opt(:,N+1,j,k,net+1).*pi-c(l_opt(:,N+1,j,k,net+1),net+1);

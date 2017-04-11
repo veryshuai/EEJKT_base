@@ -17,8 +17,9 @@
 % sig_p   =  X(13);               Pareto parameter
     
 % for scripts that take a single parameter vector
- X = [0.07435   1.96853   1.28965   1.97301   4.27068   0.49133  56.74159 ...
-      76.83565   0.61389  97.11336  -1.38562   0.82051   0.45380];
+ X = [
+        1.52729 0.45917 5.97506 0.67018 4.68515 0.55017 6.56946 0.44530 0.07882 5.56872 0.79360 3.30870 0.67208;...
+    ];
 
 % for scripts that take multiple parameter vectors
 pop = [...

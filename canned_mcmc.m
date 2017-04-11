@@ -4,7 +4,7 @@ addpath('matlab_mcmc')
 
 cf_num = 0; %legacy, says that we are not running a counterfactual
 
-fitfun = @(par,dat) distance_noprod(par, cf_num, 1);
+fitfun = @(par,dat) distance_noprod(par, cf_num, 0);
 
 model = struct('ssfun', fitfun);
 
@@ -27,7 +27,7 @@ params = {{'F_scale', 0.02325,0.001,10},...
 
 data = []; %our data is built into distance_noprod.m, no reason to pass it here
 
-options= struct('nsimu',100);
+options= struct('nsimu',20000,'verbosity',100,'method','dram');
 
 [results,chain,s2chain,sschain, hchain] = mcmcrun(model,data,params,options);
 

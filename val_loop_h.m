@@ -23,7 +23,7 @@ function [V,l_opt,my_flag] = val_loop_h(Q0,Q0_d,a,pi,mm)
     pi = pi_orig/scl;
     
     % Scaled cost function
-    c = @(x,n) ((1+x).^(1+1/bet)-1)/((1+1/bet)*(1 + log(n))^gam*scl/cscale);
+    c = @(x,n) ((1+x).^(1+1/bet)-1)/((1+1/bet)*n^gam*scl/cscale);
     
     % Initialize punishment for non-convergence
     punishment = 0; 
@@ -44,7 +44,7 @@ function [V,l_opt,my_flag] = val_loop_h(Q0,Q0_d,a,pi,mm)
     for j = 1:dim0
         for k = 1:dim1
             % first backwards induction 
-        	l_opt(:,j,k,net_size+1) = max(((1 + log(net_size+1))^gam*a(j,k)*pi*scl/cscale).^bet-1,0);
+        	l_opt(:,j,k,net_size+1) = max(((net_size+1)^gam*a(j,k)*pi*scl/cscale).^bet-1,0);
             den = rh+diag_Q;
             RHS = -c(l_opt(:,j,k,net_size+1),net_size+1)+a(j,k)*l_opt(:,j,k,net_size+1).*pi;
             Q0_diag = -Q0_d;

@@ -56,10 +56,6 @@ function [sales_mat,clients_mat,shipments_mat,firm_num_vec_mat,match_sales_forei
     %create common aggregate shocks
     macro_shock_matrix = create_macro_shock_matrix(L_f,TT,x_size);
 
-    % reset seeds (one matlab, one c++/mex)
-    rng(80085);
-    %seedMexRNG(80085);
-
     %create demand shock matrix
     demand_shock_matrix = create_demand_shock_matrix(cum_erg_pz,z_size);
     

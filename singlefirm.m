@@ -71,7 +71,7 @@ function [sales,clients,shipments,firm_num_vec,match_sales_foreign,match_sales_h
         [next_event,time_increment,total_haz] = update_overall_event_hazard(state,cli_num,lambda_f,lambda_h,L_b,L_z,match_death_haz,firm_death_haz,learn_max,net_size);
         
         % Check for too large a hazard 
-        max_runtime = 2;
+        max_runtime = 10;
         if total_haz > 4000 || toc >max_runtime 
             %break_flag = 1;
             display(toc);
