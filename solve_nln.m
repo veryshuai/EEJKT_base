@@ -1,5 +1,5 @@
 
-function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,punishment] = solve_nlm(mm)
+function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,punishment] = solve_nln(mm)
 % takes current parameters and calculates value and policy functions
 
     % Read in parameters

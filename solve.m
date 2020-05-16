@@ -7,7 +7,7 @@ function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,my_flag] = solve(mm)
     scale_h     = mm.scale_h;       % Domestic profit function scale parameter
     net_size    = mm.net_size;      % max number of network effects
     n_size      = mm.n_size;        % Maximum number of informative signals per firm
-    phi_size    = 2*mm.phi_size+1;  % number of different discretized profit shocks
+    phi_size    = 2*mm.phi_size+1;  % number of different discretized seller productivities
     x_size      = 2*mm.x_size+1;    % Number of different discretized macro shocks; same for home and foreign
     z_size      = 2*mm.z_size+1;    % Number of discretized buyer states
     dim0        = mm.dim0;          % Number of possible theta0 values (common to both markets)
@@ -15,26 +15,31 @@ function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,my_flag] = solve(mm)
     th_g        = mm.theta0;        % common theta grid
     th_h        = mm.theta1;        % home theta grid
     th_f        = mm.theta2;        % foreign theta grid
-    af          = mm.af;             % beta function parameter for foreign theta draws
-    bf          = mm.bf;             % beta function parameter for foreign theta draws
+    af          = mm.af;            % beta function parameter for foreign theta draws
+    bf          = mm.bf;            % beta function parameter for foreign theta draws
     alp         = mm.alpha;         % Export profit function scale parameter
-    Z           = mm.Z;        %buyer productivities
+    Z           = mm.Z;        %buyer productivities 
     st_h        = mm.st_h;     %home state (for use with intensity matrix)
     st_f        = mm.st_f;     %foreign state (for use with intensity matrix)
-    Q_z         = mm.Q_z;      %intensity matrix for seller productivities 
+    Q_z         = mm.Q_z;      %intensity matrix for buyer productivities 
     Q_z_d       = mm.Q_z_d;    %with zeros on the diagonal
-    erg_pz      = mm.erg_pz;   %ergodic distribution of seller productivities
+    erg_pz      = mm.erg_pz;   %ergodic distribution of buyer productivities 
     Q0_h        = mm.Q0_h;     %intensity matrix for home state
     Q0_f        = mm.Q0_f;     %intensity matrix for foreign state
     Q0_h_d      = mm.Q0_h_d;   %home with zeros on diagonal
     Q0_f_d      = mm.Q0_f_d;   %foreign with zeros on diagonal
+    Phi         = mm.Phi;      %vector of seller productivites
     
+    
+    F_f         = mm.F_f;      %fixed costs of maintaining a relationship foreign
+    F_h         = mm.F_h;      %fixed costs of maintaining a relationship home
+
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%=====Solution=====%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
     %% CALCULATE PROFIT STREAM OF SUCCESSFUL MATCH
     
-    [pi_f,~,c_val_f] = makepie(scale_f,st_f,Z,Q0_f,Q0_f_d,Q_z,Q_z_d,erg_pz,mm);
-    [pi_h,~,c_val_h] = makepie(scale_h,st_h,Z,Q0_h,Q0_h_d,Q_z,Q_z_d,erg_pz,mm);
+    [pi_f,~,c_val_f] = makepie(scale_f,st_f,Z,Q0_f,Q0_f_d,Q_z,Q_z_d,erg_pz,F_f,mm);
+    [pi_h,~,c_val_h] = makepie(scale_h,st_h,Z,Q0_h,Q0_h_d,Q_z,Q_z_d,erg_pz,F_h,mm);
     
     %% CALCULATE POSTERIOR MATCH PROBABILITIES
     
@@ -82,7 +87,7 @@ function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,my_flag] = solve(mm)
         for j = 1:dim0
             for k = 1:dim1
                 for l = 1:net_size+1
-                lambda_h{j,k,l} = lh_new(:,:,j,k,l)'; %transpose the matrices so the phi is the rows and x is the columns (as in old program)
+                lambda_h{j,k,l} = lh_new(:,:,j,k,l)'; %transpose the matrices so the productivity phi is the rows and macro shock x is the columns (as in old program)
                 end
             end
         end

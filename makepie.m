@@ -1,58 +1,57 @@
-function [pi,pi_z,c_val] = makepie(sf,st,Z,Q0,Q0_d,Q_z,Q_z_d,erg_pz,mm)
+% Called from solve_v1, this function calculates the present value of
+% successful matches. Hazards are per period (not per year).
 
-% READ IN PARAMETERS
-rh              = mm.r;     % time pref
-del             = mm.delta; % exogenous death rate
-F               = mm.F;     % fixed cost of maintaining relationship
-de              = mm.eta;   % demand elasticity
+function [myPi,pi_z,c_val] = makepie(pie_scale,st,Z,Q0,Q0_d,Q_z,Q_z_d,erg_pz,F,mm)
+
+rh              = mm.r;             % time pref. rate, per period
+del             = mm.delta;         % exogenous match death rate per period
+de              = mm.eta;           % demand elasticity
 pi_tol          = mm.pi_tolerance;  % stopping rule for loop below 
 n_z             = 2*mm.z_size+1;    % number of demand shocks states
-L_b             = mm.L_b;           %shipment hazard.
+L_b             = mm.L_b;           % shipment hazard.
 
+h = rh + del + L_b + abs(Q0(1,1)) + abs(Q_z(1,1)); %hazard of "something" happening, plus discount rate:
+% match death, new shipment, change in the macro state, or buyer shock.
 
-diag_Q = abs(diag(Q0)); %the diagonal of Q0 (all the same as currently set up)
-h = rh + del + L_b + diag_Q(1); %hazard of "something" happening (NOTE: This only
-%works if all values in diag_Q are equal)
+% payoff to shipment before adjusting for buyer state (z)
+payoff_except_z = (1/de) * exp(pie_scale) * exp((de-1)*st(1,:)+st(2,:)); 
+%sf is estimated scalar, st(1,:) is productivity, st(2,:) is macro state
+payoff = repmat(exp(Z)',size(payoff_except_z,2),1) .* repmat(payoff_except_z',1,size(Z,1)); 
+% rows differ by payoff_except_z (i.e., macro state and phi combinations),
+% columns differ by exp(Z) value
 
-%matrix summation: needed to evaluate continuation value (NOTE: This only
-%works if all values in diag_Q are equal)
-mat_tol = 1e-8; %stopping criterion
-ds_trans = zeros(size(Q_z));
-n = 0;
-diff = 1;
-while diff > mat_tol
-    add_me = (Q_z^n)/(h^n);
-    ds_trans = ds_trans + add_me; 
-    diff = max(max(add_me));
-    n = n+1;
-end
+% get expected profits for each type of buyer in each macro/prod state (row macro/prod, column demand shock) 
+pi_z = 1 / (del + rh) * payoff; %initial guess on expected lifetime profit stream
+c_val = pi_z; % continuation value, that is the value of having a relationship of a particular type.
+%We call it the continuation value because we think of it as the value of
+%keeping the relationship around just after a shipment.  It is net of the
+%cost of maintaining the relationship, F, paid just after receiving a shipment.
 
-% payoff to shipment
-payoff = 1 / de .* sf .* st(1,:).^(de-1) .* exp(st(2,:)); %sf is estimated scalar, st(1,:) is productivity, st(2,:) is macro state
-
-% get expected profits for each type of buyer 
-pi_z = bsxfun(@times,ones(size(Q0,1),n_z),payoff'); %initial guess on profits
-pi_z_new = ones(size(pi_z)); 
-c_val = ones(size(Q0,1),n_z); %continuation value
-c_val_new = c_val;
-for k=1:n_z
-    eps = 1;
-    it = 0;
-    while eps > pi_tol && it<5000   % Iterate on contraction
-        it = it + 1;
-        if it == 5000
-            display('WARNING: makepie.m did not converge!');
-        end
-        c_val_new(:,k) = Q0_d*c_val(:,k) + L_b * pi_z * ds_trans(k,:)'; %first term: likelihood of self prod or macro change times * exp lifetime value, second term: value if shipment is next event 
-        c_val_new(:,k) = max(-F + (c_val_new(:,k)/h),0); %only continue relationship if net payoff is positive
-        pi_z_new(:,k) = payoff' * exp(Z(k)) + c_val_new(:,k); %create new pi_z
-        eps = norm(pi_z(:,k)-pi_z_new(:,k))/norm(pi_z_new(:,k)); %get eps
-        pi_z(:,k) = pi_z_new(:,k); %set old pi_z equal to new pi_z 
-        c_val(:,k) = c_val_new(:,k); %set old c_val equal to new c_val
+%Value function iteration (no choice here, just exogenous shocks)
+myEps = 1e12;
+it = 0;
+max_iter = 50000;
+while myEps > pi_tol && it<=max_iter   % Iterate on contraction
+        
+    it = it + 1;
+    if it == max_iter
+        display('WARNING: makepie.m did not converge!');
     end
+
+    %new value function
+    c_val_gross_new = (Q0_d*c_val + c_val * Q_z_d' + L_b * pi_z) / h ;
+      %first term:  Q0_d is the hazard of a macro shock change multiplied by the probability of a move into a new macro state * continuation value, 
+      %second term: Q_z_d is the hazard of a demand shock change multiplied by the probability of a move into a new demand shock * continuation value 
+      %third term: value if the next event is a shipment          
+    c_val_new = max(-F + c_val_gross_new,0);  %net out the cost of maintaining the relationship.
+    pi_z_new = payoff + c_val_new;
+    
+    myEps = max(max(abs(pi_z-pi_z_new)));
+    pi_z = pi_z_new; 
+    c_val = c_val_new; 
 end 
 
-%expectation of profits over buyer states 
-pi = pi_z*erg_pz; 
+%expectation of profits over buyer states (matching is random, so this is the opject buyers care about). 
+myPi = pi_z*erg_pz; 
 
 end %end function

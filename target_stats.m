@@ -1,50 +1,42 @@
 function [Data, W] = target_stats()
 % returns the data statistics used in the loss function
 
-    %% TARGETS: 
-    % Regression coefficients from CJ system of equations May 12 COMPLETE.pdf (from email from Jim on 5/13/2015),
-    % Marcela's regressions unsing DANE Encuesta Industrial data, from March 2013, and 
-    % Jim's regressions disclosed through Penn State RDC December 2016 and February 2017
+    %% TARGET SOURCES: 
+    % match_death_coefs from CJ 5/12/15 p. 11, also in CJ spreadsheet of 3/29/16
+    % match_ar1_coefs   from CJ 5/12/15 p. 11, also in CJ spreadsheet of 3/29/16
+    % loglog_coefs      from CJ 5/12/15 p. 11, also in CJ spreadsheet of 3/29/16
+    % mavship           from CJ 6/11/15
+    % ex_dom_coefs      from Marcela 6/22/17 except for mean of dep. var, which is in $ and from C.J.
+    % dom_ar1_coefs     from Marcela 6/22/17 except for mean of dep. var*
+    % ln_haz_coefs      from US customs records, disclosed 12-12-16 & 05-07-19
+    % last_match_coefs  from US customs records, disclosed 12-12-16 & 05-07-19 
+    % succ_rate_coefs   from RDC disclosure 2-3-17 & 05-07-19
+    % sr_var_coefs      from RDC disclosure 2-3-17 & 05-07-19
+    % for_sales_shr     from Marcela 6/22/17
+    % exp_frac          from Marcela 6/22/17
     
-% coefficient vector revised 12-17-16 
+    % *In constant pesos, difference between avg. ln(domsal|domsal>0) and   
+    %  avg. ln(exports|export>0,domsal>0) is 14.46852 -12.84174 = 1.62678.
+    %  Add to avg. ln(exports)in $ from US Census to get $-equivalent 
+    %  avg. ln(domsal):  9.1770 + 1.62678 = 10.8038
     
-%     match_death_coefsDAT = [0.79447 0.03421 -0.03163 -0.05370 -0.02778];
-%     match_ar1_coefsDAT =   [1.59164 0.82637 0.32834 0.06312 1.20786^2];  % careful--these orders do not match those in text table   
-%     loglog_coefsDAT = [0.02116 -1.88130 -0.05446];
-%     mavshipDAT = 0.9706402010; % average in logs 
-% 
-%     exp_dom_coefsDAT = [1.502486-(1-0.7268059)*log(2.156/0.654),0.7268059,2.1665^2]; %regression coefficients in Marcela's email of 3-22-2013, eam_moms_out( DIAN only 21 Feb 2013).log, [constant,coef,root MSE]
-%                        % conversion from thousands of 2009 pesos to 2009 dollars: divide by 2156/1000 = 2.156
-%                        % conversion from 2009 dollars to 1992 dollars: mulitply by (139.2+141.4)/(213.1+215.9)=0.6541, since C.J. used U.S. urban CPI 
-%     dom_ar1_coefsDAT = [0.3380132-(1-0.976442)*log(2.156/0.654),0.9764422,0.46207^2]; %regression coefficients in Marcela's email of 3-22-2013, eam_moms_out( DIAN only 21 Feb 2013).log, [constant,coef,root MSE]
-%                        % conversion from thousands of 2009 pesos to 2009 dollars: divide by 2156/1000 = 2.156
-%                        % conversion from 2009 dollars to 1992 dollars: mulitply by (139.2+141.4)/(213.1+215.9)=0.6541, since C.J. used U.S. urban CPI 
-%     match_lag_coefsDAT  = [-0.3258+log(12),-0.8181,0.3117,-1.1323,2.4514,-0.7082 ]; %regression coefficients from US customs records, disclosed 12-12-16
-%     last_match_coefsDAT = [0.8397,-0.6290,0.1205,0.0211,0.5976,-0.1290];            %regression coefficients from US customs records, disclosed 12-12-16 
-%     succ_rate_coefsDAT = [0.318,0.093]; % from RDC disclosure 2-3-17
-%     sr_var_coefsDAT =    [0.152,-0.060];  % from RDC disclosure 2-3-17
-       
  % coefficient vector with means of dep. var. instead of intercepts, revised 2-24-17 
  
-    match_death_coefsDAT = [0.3951 0.03421 -0.03163 -0.05370 -0.02778];
-    match_ar1_coefsDAT  = [10.6653 0.82637 0.32834 0.06312 1.20786^2];  % careful--these orders do not match those in text table   
-    loglog_coefsDAT     = [-5.9731 -1.88130 -0.05446];
-    mavshipDAT          = 0.9706402010; % average in logs 
-    exp_dom_coefsDAT    = [9.1770,0.7268059,2.1665^2]; %regression coefficients in Marcela's email of 3-22-2013, eam_moms_out( DIAN only 21 Feb 2013).log & CJ system of eqns May 12, [mean dep var.,coef,root MSE]
-    dom_ar1_coefsDAT    = [10.9258,0.9764422,0.46207^2]; %regression coefficients in Marcela's email of 3-22-2013, eam_moms_out( DIAN only 21 Feb 2013).log & CJ system of eqns May 12, [mean dep var.,coef,root MSE]
-%  In constant pesos, difference between avg. ln(domsal|domsal>0) and avg. ln(exports|export>0,domsal>0) is 14.54223-12.79339 = 1.7488.
-%  Add to avg. ln(exports)in $ from US Census to get $-equivalent avg. ln(domsal):  9.1770 + 1.7488 = 10.9258
-    match_lag_coefsDAT  = [-0.7188+log(12),-0.8181,0.3117,-1.1323,2.4514,-0.7082 ]; %regression coefficients from US customs records, disclosed 12-12-16
-    last_match_coefsDAT = [0.2633,-0.6290,0.1205,0.0211,0.5976,-0.1290];            %regression coefficients from US customs records, disclosed 12-12-16 
-    succ_rate_coefsDAT  = [0.4192,0.093]; % from RDC disclosure 2-3-17
-    sr_var_coefsDAT     = [0.0626,-0.060];  % from RDC disclosure 2-3-17
-    for_sales_shrDAT    = [0.2051]; % mean share of exports in total sales among exporters (from Marcela's eam_moms_out printout)
-    exp_fracDAT         = [0.3179];  % fraction pf firms that export (from Marcela's eam_moms_out printout)
+    match_death_coefsDAT = [0.3951 0.03421 -0.03163 -0.05370 -0.02778]; % [mean D, R(ijt), lnXf(ijt), ln(match age), ln(exporter age)]
+    match_ar1_coefsDAT   = [10.6653 0.82637 0.32834 0.06312 1.20786^2]; % [mean ln Xf(ijt), ln Xf(ijt-1), R(ijt-1), ln(exporter age)]   
+    loglog_coefsDAT      = [-5.9731 -1.88130 -0.05446];  % [intercept, slope, quadratic term]
+    mavshipDAT           = 0.9706402010; % average ln(# shipments) 
+    exp_dom_coefsDAT     = [9.1770 ,0.3228142,2.606^2]; % [mean dep var.,coef,MSE]  
+    dom_ar1_coefsDAT     = [10.8038,0.9764422,0.46207^2]; % [mean dep var.,coef,MSE] 
+    ln_haz_coefsDAT      = [-0.7188,-0.8181,0.3117,-1.1323,2.4514,-0.7082]; % [mean dep. var, ln(1+a), ln(1+a)^2, ln(1+r), ln(1+r)^2, ln(1+a)*ln(1+r)] 
+    last_match_coefsDAT  = [0.635,-0.6290,0.1205,0.0211,0.5976,-0.1290]; % [mean dep. var, ln(1+a), ln(1+a)^2, ln(1+r), ln(1+r)^2, ln(1+a)*ln(1+r)]            
+    succ_rate_coefsDAT   = [0.413,0.093];  % [mean succ rate, ln(1+meetings)]
+    sr_var_coefsDAT      = [0.0912,-0.060]; % [mean succ rate, ln(1+meetings)]
+    for_sales_shrDAT     =  0.1270; % mean share of exports to U.S. in total sales 
+    exp_fracDAT          =  0.1023; % fraction of firms that export to U.S.
     
-    % note last 4 dep. means are based on DIAN and need to updated to US
-    % data
    Data = [match_death_coefsDAT,match_ar1_coefsDAT,loglog_coefsDAT,mavshipDAT,exp_dom_coefsDAT,...
-       dom_ar1_coefsDAT,match_lag_coefsDAT,last_match_coefsDAT,succ_rate_coefsDAT,sr_var_coefsDAT,...
+       dom_ar1_coefsDAT,ln_haz_coefsDAT,last_match_coefsDAT,succ_rate_coefsDAT,sr_var_coefsDAT,...
        for_sales_shrDAT,exp_fracDAT];
      
 %      Data = [match_death_coefsDAT (1-5),match_ar1_coefsDAT (6-10),loglog_coefsDAT (11-13),mavshipDAT (14),exp_dom_coefsDAT (15-17),...
@@ -76,45 +68,45 @@ loglog_coefsCOV = ...
  % The following two matrices come from Marcela's printout (DIAN only 21 Feb. 2013)
 
     exp_dom_coefsCOV = ...
-        [0.009611   0            0         ;   % first element is std. dev. of mean of dep. var
-        0           0.0064868    0         ;
-        0           0            0.0354].^2;  % see notes on printout for se(RSME)
+      [0.0133969  0             0       ;     % first element is std. dev. of mean of dep. var
+       0           0.0120728    0       ;     % 2.537503/sqrt(35877) = 0.0133969
+       0           0            0.089016].^2; % see notes on printout for se(RSME)
 
     dom_ar1_coefsCOV = ...
-        [0.005144   0           0        ;    % first element is std. dev. of mean of dep. var
-        0           0.0008622   0        ;
-        0           0           0.000958].^2;  % see notes on printouts for se(RSME)
+       [0.0050684   0           0        ;    % first element is std. dev. of mean of dep. var
+        0           0.0008622   0        ;    % 1.718554/sqrt(114968) = 0.0050684
+        0           0           0.000958].^2; % see notes on printouts for se(RSME)
     
     
 % The following matrices are based on U.S. customs records. 
 
   match_lag_coefsCOV = ...
-   [0.0105 0      0      0      0      0        ;
-    0      0.1128 0      0      0      0        ;
-    0      0      0.0168 0      0      0        ;
-    0      0      0      0.2962 0      0        ;
-    0      0      0      0      0.3956 0        ;
-    0      0      0      0      0      0.0105]^2; %Results disclosed 12-12-16
+   [0.00621 0      0      0      0      0        ;
+    0       0.1128 0      0      0      0        ;
+    0       0      0.0168 0      0      0        ;
+    0       0      0      0.2962 0      0        ;
+    0       0      0      0      0.3956 0        ;
+    0       0      0      0      0      0.1341]^2; %Results disclosed 12-12-16 & 5-7-19
 
 
   last_match_coefsCOV = ...
-   [0.0038 0      0      0      0      0        ;
+   [0.00253 0      0      0      0      0        ;
     0      0.0422 0      0      0      0        ;
-    0      0      0.0063 0      0      0        ;
-    0      0      0      0.1101 0      0        ;
-    0      0      0      0      0.1470 0        ;
-    0      0      0      0      0      0.0501]^2; % Results disclosed 12-12-16
+     0      0      0.0063 0      0      0        ;
+     0      0      0      0.1101 0      0        ;
+     0      0      0      0      0.1470 0        ;
+     0      0      0      0      0      0.0501]^2; % Results disclosed 12-12-16 & 5-07-19
 
 succ_rate_coefsCOV = ...  % based on RDC disclosure 2-3-17
-    [0.00000683  0.000000000 ;
-     0.00000000  0.00000940];
+    [0.00153^2   0.00000000 ;
+     0.00000000  0.00000683];
  
- sr_var_coefsCOV = ...    % based on RDC disclosure 2-3-17
-     [0.00000012   0.00000000;
-      0.00000000   0.00000017];
+ sr_var_coefsCOV = ...    % based on RDC disclosure 2-3-17 & 5-07-19
+     [0.000265^2  0.00000000;
+      0.00000000  0.00000012];
   
- for_sales_shrCOV = (.2673594^2)/35877;   % from Marcela's eam_moms_out.pdf  
- exp_fracCOV      = (.3179115^2)/115334;  % from Marcela's eam_moms_out.pdf
+ for_sales_shrCOV = (.2433645^2)/12512;   % from Marcela's eam_moms_out.pdf  
+ exp_fracCOV      = (.3030042^2)/11930;  % from Marcela's eam_moms_out.pdf
 %%
 
     
