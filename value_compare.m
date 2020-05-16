@@ -21,9 +21,9 @@ all_exporters = [unique_firms,all_matches_one_year(uniq_ind,2),annual_sales(annu
 all_exporters(:,4:5) = pt_type(all_exporters(:,2),:);
 all_exporters = sortrows(all_exporters,3); %sort based on sales
 
-median_prod = [10,floor(prctile(all_exporters(:,4),10));50,floor(prctile(all_exporters(:,4),50));90,floor(prctile(all_exporters(:,4),90))]
+%median_prod = [10,floor(prctile(all_exporters(:,4),10));50,floor(prctile(all_exporters(:,4),50));90,floor(prctile(all_exporters(:,4),90))]
 median_succ = [10,floor(prctile(all_exporters(:,5),10));50,floor(prctile(all_exporters(:,5),50));90,floor(prctile(all_exporters(:,5),90))]
-
+median_prod = [10,14;50,15;90,16]; %match the baseline
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

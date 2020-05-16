@@ -27,7 +27,9 @@ F_f      =  exp(X(10));    % foreign match fixed cost
 cs_f     =  exp(X(11));    % cost function scalar, foreign market
 scale_f  =  X(12);         % log of foreign profit function scalar 
 
-
+%turn off network effect
+X(7) = 0;
+gam = 0;
 
 try
     
