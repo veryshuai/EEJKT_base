@@ -190,12 +190,12 @@ for start_yr = 1:6
     succs = 1;
     trials = 1;
     for match_no = 0:9
-        trials = trials + 1;
-        succs = succs + succ_seq(match_no + 1);
         theta_guess = (mm.af + succs - 1) / (mm.af + mm.bf + trials - 1);
         theta_evolution(match_no+1,1,start_yr) = cum_years;
         theta_evolution(match_no+1,2,start_yr) = theta_guess;
         cum_years = cum_years + 1 / (12 * lambda_f(succs,trials,1,succs,median_prod(3,2),7));
+        trials = trials+1;
+        succs = succs + succ_seq(match_no+1);
     end
     
     cum_year_mat(start_yr) = cum_years;
