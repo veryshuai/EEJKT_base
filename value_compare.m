@@ -1,3 +1,4 @@
+
 % %This script calculates values of clients
 % clear all;
 % 
@@ -21,17 +22,18 @@ all_exporters = [unique_firms,all_matches_one_year(uniq_ind,2),annual_sales(annu
 all_exporters(:,4:5) = pt_type(all_exporters(:,2),:);
 all_exporters = sortrows(all_exporters,3); %sort based on sales
 
-median_prod = [10,floor(prctile(all_exporters(:,4),10));50,floor(prctile(all_exporters(:,4),50));90,floor(prctile(all_exporters(:,4),90))]
+% median_prod = [10,floor(prctile(all_exporters(:,4),10));50,floor(prctile(all_exporters(:,4),50));90,floor(prctile(all_exporters(:,4),90))]
 median_succ = [10,floor(prctile(all_exporters(:,5),10));50,floor(prctile(all_exporters(:,5),50));90,floor(prctile(all_exporters(:,5),90))]
 
+median_prod = [10,14;50,15;90,16] %these are from the learning version, to make plots comparable
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Now we have both the median productivity and success probabilities in hand
 %simulate value for these different types and plot
 
-X = [-3.60529    -3.87941    0.23156 2.46487 1.88176 15.42634 0.38246 11.72211    1.38618 -1.21819    13.00238    -6.13506];
-    
+X = [-3.28408	-3.46017	0.11078	5.24215	1.95079	15.43122 0.50771	12.47973	1.40083	-1.20141	13.66635	-6.27298];
+
 X2params;
 
 %USE FOREIGN PARAMETERS FOR HOME
@@ -71,16 +73,33 @@ marg_val_alt_f_percent = zeros(20,3);
 
 for type = 1:3
 
+    % for k = 1:20
+    %     val_succ_f(k,type) = value_f(k,k,1,k,median_prod(type,2),7); marg_val_succ_f(k,type)  = value_f(k+1,k+1,1,k+1,median_prod(type,2),7) - value_f(k,k,1,k,median_prod(type,2),7);
+    %     marg_val_succ_f_percent(k,type) = (value_f(k+1,k+1,1,k+1,median_prod(type,2),7) - value_f(k,k,1,k,median_prod(type,2),7))/value_f(k,k,1,k,median_prod(type,2),7);
+    % end
+
     for k = 1:20
-        val_succ_f(k,type) = value_f(k,k,1,k,median_prod(type,2),7); marg_val_succ_f(k,type)  = value_f(k+1,k+1,1,k+1,median_prod(type,2),7) - value_f(k,k,1,k,median_prod(type,2),7);
-        marg_val_succ_f_percent(k,type) = (value_f(k+1,k+1,1,k+1,median_prod(type,2),7) - value_f(k,k,1,k,median_prod(type,2),7))/value_f(k,k,1,k,median_prod(type,2),7);
+        val_succ_f(k,type) = value_f(1,3,k,median_prod(type,2),7);
+        marg_val_succ_f(k,type)  = value_f(1,3,k+1,median_prod(type,2),7) - value_f(1,3,k,median_prod(type,2),7);
+        marg_val_succ_f_percent(k,type) = (value_f(1,3,k+1,median_prod(type,2),7) - value_f(1,3,k,median_prod(type,2),7))/value_f(1,3,k,median_prod(type,2),7);
     end
     
     for k = 1:20
-        val_fail_f(k,type) = value_f(1,k,1,1,median_prod(type,2),7);
-        marg_val_fail_f(k,type)  = value_f(1,k+1,1,1,median_prod(type,2),7) - value_f(1,k,1,1,median_prod(type,2),7);
-        marg_val_fail_f_percent(k,type) = (value_f(1,k+1,1,1,median_prod(type,2),7) - value_f(1,k,1,1,median_prod(type,2),7))/value_f(1,k,1,1,median_prod(type,2),7);
+        val_alt_f(k,type) = value_f(1,3,floor(k/2) + mod(k,2),median_prod(type,2),7);
+        marg_val_alt_f(k,type)  = value_f(1,3,floor((k+1)/2)+mod(k+1,2),median_prod(type,2),7) - value_f(1,3,floor((k)/2)+mod(k,2),median_prod(type,2),7);
+        marg_val_alt_f_percent(k,type) = (value_f(1,3,floor((k+1)/2)+mod(k+1,2),median_prod(type,2),7) - value_f(1,3,floor((k)/2)+mod(k,2),median_prod(type,2),7))/value_f(1,3,floor((k)/2)+mod(k,2),median_prod(type,2),7);
     end
+    
+    for k = 1:20
+        val_fail_f(k,type) = value_f(1,3,1,median_prod(type,2),7);
+        marg_val_fail_f(k,type)  = value_f(1,3,1,median_prod(type,2),7) - value_f(1,3,1,median_prod(type,2),7);
+        marg_val_fail_f_percent(k,type) = (value_f(1,3,1,median_prod(type,2),7) - value_f(1,3,1,median_prod(type,2),7))/value_f(1,3,1,median_prod(type,2),7);
+    end
+%     for k = 1:20
+%         val_fail_f(k,type) = value_f(1,k,1,1,median_prod(type,2),7);
+%         marg_val_fail_f(k,type)  = value_f(1,k+1,1,1,median_prod(type,2),7) - value_f(1,k,1,1,median_prod(type,2),7);
+%         marg_val_fail_f_percent(k,type) = (value_f(1,k+1,1,1,median_prod(type,2),7) - value_f(1,k,1,1,median_prod(type,2),7))/value_f(1,k,1,1,median_prod(type,2),7);
+%     end
     
     for k = 1:20
         val_succ_h(k,type) = value_h(1,7,k,median_prod(type,2),7);
@@ -94,12 +113,12 @@ for type = 1:3
         marg_val_alt_h_percent(k,type) = (value_h(1,7,k+1,median_prod(type,2),7) - value_h(1,7,k,median_prod(type,2),7))/value_h(1,7,k,median_prod(type,2),7);
     end
 
-    for k = 1:20
-        succs = floor(k/2) + 1;
-        val_alt_f(k,type) = value_f(succs,k,1,succs,median_prod(type,2),7); 
-        marg_val_alt_f(k,type)  = value_f(succs-mod(k,2)+1,k+1,1,succs-mod(k,2)+1,median_prod(type,2),7) - value_f(succs,k,1,succs,median_prod(type,2),7);
-        marg_val_alt_f_percent(k,type) = (value_f(succs-mod(k,2)+1,k+1,1,succs-mod(k,2)+1,median_prod(type,2),7) - value_f(succs,k,1,succs,median_prod(type,2),7))/value_f(succs,k,1,succs,median_prod(type,2),7);
-    end
+%     for k = 1:20
+%         succs = floor(k/2) + 1;
+%         val_alt_f(k,type) = value_f(succs,k,1,succs,median_prod(type,2),7); 
+%         marg_val_alt_f(k,type)  = value_f(succs-mod(k,2)+1,k+1,1,succs-mod(k,2)+1,median_prod(type,2),7) - value_f(succs,k,1,succs,median_prod(type,2),7);
+%         marg_val_alt_f_percent(k,type) = (value_f(succs-mod(k,2)+1,k+1,1,succs-mod(k,2)+1,median_prod(type,2),7) - value_f(succs,k,1,succs,median_prod(type,2),7))/value_f(succs,k,1,succs,median_prod(type,2),7);
+%     end
 
 end
 
@@ -179,8 +198,9 @@ saveas(gcf,"results/value_plots/marg_val_h_percent.png");
 % successes arrive.  Just so we have a simple ordering, we assume that the
 % successes all arrive consecutively, but start in different years.
 
+% value_h (common succ rate (defunct), known succ rate, network size, prod of firm, H macro shock)
+
 cum_year_mat = zeros(6,1);
-theta_evolution = zeros(10,2,6); % [match_no, [time, value], first_yr]
 for start_yr = 1:6
 
     succ_seq = zeros(10);
@@ -189,13 +209,10 @@ for start_yr = 1:6
     cum_years = 0;
     succs = 1;
     trials = 1;
-    for match_no = 0:9
-        theta_guess = (mm.af + succs - 1) / (mm.af + mm.bf + trials - 1);
-        theta_evolution(match_no+1,1,start_yr) = cum_years;
-        theta_evolution(match_no+1,2,start_yr) = theta_guess;
-        cum_years = cum_years + 1 / (12 * lambda_f(succs,trials,1,succs,median_prod(3,2),7));
-        trials = trials+1;
-        succs = succs + succ_seq(match_no+1);
+    for match_no = 0:10
+        trials = trials + 1;
+        succs = succs + succ_seq(match_no + 1); 
+        cum_years = cum_years + 1 / (12 * lambda_f(1,3,succs,17,7));
     end
     
     cum_year_mat(start_yr) = cum_years;
@@ -206,17 +223,6 @@ xlabel('Year of first success');
 ylabel('Years to ten trials');
 title('Five successes in ten trials');
 saveas(gcf,"results/value_plots/success_order.png");
-
-plot(theta_evolution(:,1,1),theta_evolution(:,2,1));
-hold on
-plot(theta_evolution(:,1,6),theta_evolution(:,2,6));
-xlabel('Years')
-ylabel('Success probability belief')
-title('Five successes in ten trials');
-legend({'Successes first','Successes last'},'Location','northeast')
-hold off
-saveas(gcf,"results/value_plots/success_beliefs.png");
-
 
 
 

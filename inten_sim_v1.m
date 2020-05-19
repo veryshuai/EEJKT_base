@@ -32,41 +32,41 @@
 
     %% 
     
-    [lambda_f, lambda_h, c_val_f_orig, c_val_h_orig,value_f, value_h]  = ...
-        moms_decell(lambda_f_orig, lambda_h_orig, c_val_f_orig, c_val_h_orig,value_f,value_h);
+    [lambda_h, c_val_h_orig, value_h]  = ...
+        moms_decell(lambda_h_orig, c_val_h_orig,value_h);
+    [lambda_f, c_val_f_orig, value_f]  = ...
+        moms_decell(lambda_f_orig, c_val_f_orig,value_f);
     
     % lambda_f (succ, trial, common succ rate (defunct), network size, prod of firm, F macro shock) 
     % lambda_h (common succ rate (defunct), known succ rate, network size, prod of firm, H macro shock)
     % c_val* (demand shock, prod of firm, macro shock)
-    
-    test_policy_funcs; %function to test that policy functions are monotonic in expected directions
     
 %     test_val_f = squeeze(c_val_f_orig(15,:,:));
 %     test_lam_f1 = squeeze(lambda_f(7,10,1,7,:,:));
 %     test_lam_f2 = squeeze(lambda_f(5,10,1,5,:,:));
 %     diff_lam = test_lam_f1 - test_lam_f2;
     
-    [nn1,nn2,nn3,nn4,N_prod,N_Xf] = size(lambda_f); 
+    counter = 1;
+    Q_size_h = 70;
+    Q_index_h = [(1:Q_size_h)',zeros(Q_size_h,1),(1:Q_size_h)'];
+    %Q_index_f = Q_index_h;
+    
+    %[nn1,nn2,nn3,nn4,N_prod,N_Xf] = size(lambda_f); 
+    
+    [nn3,nn5,nn4,N_prod,N_Xf] = size(lambda_f);
+    nn2 = mm.n_size +1; %informative signals
     Q_size_f  = nn2*(nn2+1)/2;    % was nn1 instead of nn2--both have same value, but need to check arguments of lambda_f
     Q_index_f = zeros(Q_size_f,3); % [index,trials,successes]
     
-    counter = 1;
-    for i=1:1:nn2    % number of meetings, plus 1
-        for ss=1:1:i % number of successes, plus 1
-            Q_index_f(counter,:) = [counter,i,ss];
-            counter = counter + 1;
-        end
-    end 
+    %Q_size_h  = Q_size_f;    % was nn1 instead of nn2--both have same value, but need to check arguments of lambda_f
+    %Q_index_h = Q_index_f; % [index,trials,successes]
     
-    counter = 1;
-    Q_size_h = 70;
-    Q_index_h = [(1:Q_size_h)',zeros(Q_size_h,1),(1:Q_size_h)']; 
     % (1) micro state (2) # matches (3) # successes 
     % structure chosen to be symmetric with Q_index_f. Only one column
     % really needed: we only keep track of successes in home market
     
     % th_bar = makepost(nn1,mm.theta0,mm.af,mm.bf,mm.alpha);
-    th_bar = makepost(nn2,0,mm.af,mm.bf,mm.alpha);
+    %th_bar = makepost(nn2,0,mm.af,mm.bf,mm.alpha);
 
 %% calculate probabilities of generic firm types (theta draw by Z draw)
            
@@ -87,6 +87,7 @@
     mac_dist_h = normpdf(mm.X_h,0,0.047);
     mac_dist_h = mac_dist_h./sum(mac_dist_h);   % (normalization patch for now)
      
+    N_Xf = length(X_f);
     type_ndx = (1:1:N_Phi*N_theta2*N_Xf)'; % # types is prod * succ prob * macro shocks
     
     pr_non_macro = kron(ones(N_Phi,1),th2_pdf').*kron(mm.erg_pp,ones(N_theta2,1)); % (prod, succ prob) joint pdf
@@ -103,12 +104,12 @@
 
 %% construct intensity matrix for given firm type k
 
- [pmat_type_f,pmat_cum_f] = Q2pmat_v2(mm,nn2,typemat,lambda_f,Q_size_f,Q_index_f,1);
+ [pmat_type_f,pmat_cum_f,nn_f] = Q2pmat_v2(mm,mm.n_size+1,typemat,lambda_f,Q_size_f,Q_index_f,1);
  % last argument is cum. foreign market transition probability 
  
 
 % not needed if using matchdat_gen_h2:
-[pmat_type_h,pmat_cum_h,nn_h] = Q2pmat_v2(mm,nn2,typemat,lambda_h,Q_size_h,Q_index_h,2);
+[pmat_type_h,pmat_cum_h,nn_h] = Q2pmat_v2(mm,mm.n_size+1,typemat,lambda_h,Q_size_h,Q_index_h,2);
 % last output argument indicates maximum number of clients
   
 %% construct transition probabilities for time interval delta

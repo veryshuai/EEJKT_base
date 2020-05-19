@@ -41,10 +41,6 @@ function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,my_flag,value_h,value_f] =
     [pi_h,~,c_val_h] = makepie(scale_h,st_h,Z,Q0_h,Q0_h_d,Q_z,Q_z_d,erg_pz,F_h,mm);
     
     %% CALCULATE POSTERIOR MATCH PROBABILITIES
-    
-    % foreign posterior distribution for theta
-    a_f = makepost(n_size,th_g,af,bf,alp); %[trials,successes,th_g]
-
     % home posterior distribution for theta
     a_h = ones(size(th_g,2),size(th_h,2));
     for m = 1:size(th_g,2)
@@ -68,7 +64,7 @@ function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,my_flag,value_h,value_f] =
     [val{nnn},ll{nnn},flag_test(nnn)] = val_loop_h(Q0_h,Q0_h_d,a_h,pi_h,mm); 
     % args of ll(1): [home macro & prod state, general type (not used),theta_h, network effect]
         elseif nnn==2
-    [val{nnn},ll{nnn},flag_test(nnn)] = val_loop_f(Q0_f,Q0_f_d,a_f,pi_f,mm); 
+    [val{nnn},ll{nnn},flag_test(nnn)] = val_loop_h(Q0_f,Q0_f_d,a_h,pi_f,mm); 
      % args of ll(2): [foreign macro & prod state,trials,successes,general type(not used), network effect]
         end
     end
@@ -99,9 +95,9 @@ function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,my_flag,value_h,value_f] =
         % trials, successes, general product appeal, and network size for
         % foreign.
         lh_new = reshape(lh,n_x,n_phi,dim0,dim1,net_size+1); %splitting up the exogenous shock vector to macro and productivity shocks
-        lf_new = reshape(lf,n_x,n_phi,n_size+1,n_size+1,dim0,net_size+1); %same
+        lf_new = reshape(lf,n_x,n_phi,dim0,dim1,net_size+1); %splitting up the exogenous shock vector to macro and productivity shocks
         val_h_new = reshape(val_h,n_x,n_phi,dim0,dim1,net_size+1);
-        val_f_new = reshape(val_f,n_x,n_phi,n_size+1,n_size+1,dim0,net_size+1);
+        val_f_new = reshape(val_f,n_x,n_phi,dim0,dim1,net_size+1);
  
        % lh = [home macro & prod state, general type (not used),theta_h, network effect] reshaped with dimensions: 
        % # macro shocks, # seller productivities, # gen types, # theta_h's, # network effects 
@@ -114,24 +110,22 @@ function [lambda_f,lambda_h,pi_h,pi_f,c_val_h,c_val_f,my_flag,value_h,value_f] =
        % productivity states, and the columns are macro states.
        lambda_h = cell(dim0,dim1,net_size); %(general product appeal,specific product appeal,net effect)
        value_h = cell(dim0,dim1,net_size); %(general product appeal,specific product appeal,net effect)
-       lambda_f = cell(n_size+1,n_size+1,dim0,net_size+1); %(successes,trials,general product appeal,net effect)
-       value_f = cell(n_size+1,n_size+1,dim0,net_size+1);
+       lambda_f = cell(dim0,dim1,net_size); %(general product appeal,specific product appeal,net effect)
+       value_f = cell(dim0,dim1,net_size); %(general product appeal,specific product appeal,net effect)
 
-       for j = 1:n_size+1
-           for k = 1:n_size+1
-               for m = 1:dim0
-                   for n = 1:net_size+1
-                   lambda_f{k,j,m,n} = lf_new(:,:,j,k,m,n)';
-                   value_f{k,j,m,n} = val_f_new(:,:,j,k,m,n)';
-                   end
+       for j = 1:dim0
+           for k = 1:dim1
+               for l = 1:net_size+1
+               lambda_h{j,k,l} = lh_new(:,:,j,k,l)'; 
+               value_h{j,k,l} = val_h_new(:,:,j,k,l)'; 
                end
            end
        end
        for j = 1:dim0
            for k = 1:dim1
                for l = 1:net_size+1
-               lambda_h{j,k,l} = lh_new(:,:,j,k,l)'; 
-               value_h{j,k,l} = val_h_new(:,:,j,k,l)'; 
+               lambda_f{j,k,l} = lf_new(:,:,j,k,l)'; 
+               value_f{j,k,l} = val_f_new(:,:,j,k,l)'; 
                end
            end
        end

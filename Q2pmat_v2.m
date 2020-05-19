@@ -50,8 +50,8 @@ for typ_indx = 1:size(typemat,1)
         pos_i = sum(1:i-1); %advance to the correct number of meetings
         for ss=1:1:i % number of successes, plus 1
              r_ind = pos_i+ss;
-             search_inten = lambda(ss,i,1,ss,prod_lvl,ms);
-             
+             %search_inten = lambda(ss,i,1,ss,prod_lvl,ms);
+             search_inten = lambda(1,typemat(typ_indx,3),ss,prod_lvl,ms);
              if i ~= nn2 && i ~= 1 % deal separately with first and last nn1.  It is impossible to learn more from last trial    
                 counter = counter + 1;
                 q_index_list(counter,:) = [r_ind,r_ind,-(search_inten + firm_death_haz)]; %diag

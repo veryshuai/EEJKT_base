@@ -123,29 +123,28 @@ Mcov = cov(Model_holder');
 
 G = -dMdP; %just change the notation to fit Joris' note 
 
-[Data, COV] = target_stats(); %load in the weighting matrix
-W = inv(COV);
+[Data, W_inv] = target_stats(); %load in the weighting matrix
+W = inv(W_inv);
 
-V_standard = inv(G' * W * G) * G' * W * Mcov * W * G * inv(G' * W * G);
-V_simple = inv(G' * W  * G);
-V_pure_bs = inv(G' * inv(Mcov) * G);
+V_bootstrap_raw = inv(G' * W * G) * G' * W * Mcov * W * G * inv(G' * W * G);
+V_simple = inv(G' * W * G);
 
-stderr = sqrt(diag(V_standard));
+%read in missing weighting matrix entries with bootstrapped moments
+weighting_mat_mean = mean(diag(W_inv));
+Mcov_mean = mean(diag(Mcov)); %only use the non-zzero entries in the weighting matrix
+Mcov_adjust = Mcov * weighting_mat_mean / Mcov_mean;
+W_inv_adj = W_inv;
+W_inv_adj(W_inv == 0) = Mcov_adjust(W_inv == 0);
+W_adj = inv(W_inv_adj);
+V_adj = inv(G' * W_adj * G);
+
+AGS_sens = -inv(G' * W_adj * G) * G' * W_adj;
+
+AGS_elas = AGS_sens .* repmat((W_adj * base_moments)',size(AGS_sens,1),1) ./ repmat(param_vec',1,size(AGS_sens,2));
+
+stderr = sqrt(diag(V_adj));
 se_table = table(param_names',param_vec',stderr);
 
 save results/bootstrap_results
 
-% %read in missing weighting matrix entries with bootstrapped moments
-% weighting_mat_mean = mean(diag(W_inv));
-% Mcov_mean = mean(diag(Mcov)); %only use the non-zzero entries in the weighting matrix
-% Mcov_adjust = Mcov * weighting_mat_mean / Mcov_mean;
-% W_inv_adj = W_inv;
-% W_inv_adj(W_inv == 0) = Mcov_adjust(W_inv == 0);
-% W_adj = inv(W_inv_adj);
-% Mcov_inv = inv(Mcov);
-% V_adj = inv(G' * Mcov_inv * G);
-% 
-% AGS_sens = -inv(G' * W_adj * G) * G' * W_adj;
-% 
-% AGS_elas = AGS_sens .* repmat((W_adj * base_moments)',size(AGS_sens,1),1) ./ repmat(param_vec',1,size(AGS_sens,2));
 
